@@ -17,7 +17,8 @@ export async function createIssue(
   summary: string,
   customFields: YouTrackCustomField[]
 ): Promise<YouTrackIssue> {
-  const url = `${youtrackUrl}/api/issues?fields=id,idReadable,summary`;
+  const baseUrl = youtrackUrl.replace(/\/$/, '');
+  const url = `${baseUrl}/api/issues?fields=id,idReadable,summary`;
 
   const response = await fetch(url, {
     method: 'POST',

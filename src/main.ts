@@ -8,6 +8,11 @@ export async function run(): Promise<void> {
     return;
   }
 
+  if (!context.payload.pull_request) {
+    core.setFailed('No pull_request payload found. This action must run on a pull_request event.');
+    return;
+  }
+
   const youtrackUrl = core.getInput('youtrack-url');
   const token = core.getInput('youtrack-token');
   const project = core.getInput('project');

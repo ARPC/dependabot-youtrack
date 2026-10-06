@@ -94,6 +94,19 @@ describe('createIssue', () => {
     );
   });
 
+  it('strips trailing slash from youtrack-url before constructing endpoint', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: '1-1', idReadable: 'TMT-1', summary: SUMMARY }),
+    });
+
+    await createIssue(`${URL}/`, TOKEN, PROJECT, SUMMARY, FIELDS);
+
+    const [url] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(url).toBe(`${URL}/api/issues?fields=id,idReadable,summary`);
+    expect(url).not.toContain('//api/');
+  });
+
   it('throws with status and body on 5xx', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,

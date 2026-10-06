@@ -46,8 +46,11 @@ describe('run()', () => {
     jest.clearAllMocks();
     mockCore.getInput.mockImplementation((name: string) => DEFAULT_INPUTS[name] ?? '');
     githubContext().actor = 'dependabot[bot]';
-    githubContext().payload.pull_request.title = PR_TITLE;
-    githubContext().payload.pull_request.html_url = PR_HTML_URL;
+    githubContext().payload.pull_request = {
+      title: PR_TITLE,
+      html_url: PR_HTML_URL,
+      number: 42,
+    };
     mockCreateIssue.mockResolvedValue({
       id: '1-42',
       idReadable: 'TMT-42',
@@ -91,6 +94,15 @@ describe('run()', () => {
   it('logs the created issue idReadable after success', async () => {
     await run();
     expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining('TMT-42'));
+  });
+
+  it('calls setFailed with a clear message when pull_request payload is absent', async () => {
+    githubContext().payload.pull_request = undefined;
+    await run();
+    expect(mockCore.setFailed).toHaveBeenCalledWith(
+      'No pull_request payload found. This action must run on a pull_request event.'
+    );
+    expect(mockCreateIssue).not.toHaveBeenCalled();
   });
 
   it('throws on YouTrack API error so the entry point can call setFailed', async () => {
