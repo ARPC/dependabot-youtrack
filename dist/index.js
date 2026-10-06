@@ -30016,6 +30016,10 @@ async function run() {
         core.info('Skipping: actor is not dependabot[bot]');
         return;
     }
+    if (!github_1.context.payload.pull_request) {
+        core.setFailed('No pull_request payload found. This action must run on a pull_request event.');
+        return;
+    }
     const youtrackUrl = core.getInput('youtrack-url');
     const token = core.getInput('youtrack-token');
     const project = core.getInput('project');
@@ -30046,7 +30050,8 @@ async function run() {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createIssue = createIssue;
 async function createIssue(youtrackUrl, token, project, summary, customFields) {
-    const url = `${youtrackUrl}/api/issues?fields=id,idReadable,summary`;
+    const baseUrl = youtrackUrl.replace(/\/$/, '');
+    const url = `${baseUrl}/api/issues?fields=id,idReadable,summary`;
     const response = await fetch(url, {
         method: 'POST',
         headers: {
