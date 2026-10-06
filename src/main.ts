@@ -19,15 +19,18 @@ export async function run(): Promise<void> {
   const pr = context.payload.pull_request as unknown as { title: string; html_url: string };
   const summary = `Dependabot: ${pr.title}`;
 
+  const assignee = core.getInput('assignee');
+  const codebase = core.getInput('codebase');
+
   const customFields: YouTrackCustomField[] = [
     { $type: 'SingleEnumIssueCustomField', name: 'SubProject', value: { name: core.getInput('subproject') } },
     { $type: 'SingleEnumIssueCustomField', name: 'PR',         value: { name: pr.html_url } },
     { $type: 'StateIssueCustomField',      name: 'Stage',      value: { name: core.getInput('stage') } },
     { $type: 'SingleEnumIssueCustomField', name: 'Type',       value: { name: core.getInput('type') } },
     { $type: 'StateIssueCustomField',      name: 'State',      value: { name: core.getInput('state') } },
-    { $type: 'SingleUserIssueCustomField', name: 'Assignee',   value: { login: core.getInput('assignee') } },
+    ...(assignee ? [{ $type: 'SingleUserIssueCustomField', name: 'Assignee', value: { login: assignee } } as YouTrackCustomField] : []),
     { $type: 'SingleEnumIssueCustomField', name: 'Priority',   value: { name: core.getInput('priority') } },
-    { $type: 'SingleEnumIssueCustomField', name: 'CodeBase',   value: { name: core.getInput('codebase') } },
+    ...(codebase ? [{ $type: 'SingleEnumIssueCustomField', name: 'CodeBase', value: { name: codebase } } as YouTrackCustomField] : []),
   ];
 
   const issue = await createIssue(youtrackUrl, token, project, summary, customFields);

@@ -105,6 +105,16 @@ describe('run()', () => {
     expect(mockCreateIssue).not.toHaveBeenCalled();
   });
 
+  it('omits Assignee and CodeBase from customFields when inputs are empty', async () => {
+    mockCore.getInput.mockImplementation((name: string) =>
+      ({ ...DEFAULT_INPUTS, assignee: '', codebase: '' } as Record<string, string>)[name] ?? ''
+    );
+    await run();
+    const customFields = mockCreateIssue.mock.calls[0][4];
+    expect(customFields.find(f => f.name === 'Assignee')).toBeUndefined();
+    expect(customFields.find(f => f.name === 'CodeBase')).toBeUndefined();
+  });
+
   it('throws on YouTrack API error so the entry point can call setFailed', async () => {
     mockCreateIssue.mockRejectedValueOnce(new Error('YouTrack API error 403: Forbidden'));
     await expect(run()).rejects.toThrow('YouTrack API error 403: Forbidden');

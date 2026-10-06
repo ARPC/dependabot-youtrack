@@ -26,13 +26,15 @@ inputs:
     required: true
   assignee:
     description: 'YouTrack login for the Assignee field'
-    required: true
+    required: false
+    default: ''
   priority:
     description: 'Value for the Priority custom field'
     required: true
   codebase:
     description: 'Value for the CodeBase custom field'
-    required: true
+    required: false
+    default: ''
 
 runs:
   using: 'node20'

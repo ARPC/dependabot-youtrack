@@ -30025,15 +30025,17 @@ async function run() {
     const project = core.getInput('project');
     const pr = github_1.context.payload.pull_request;
     const summary = `Dependabot: ${pr.title}`;
+    const assignee = core.getInput('assignee');
+    const codebase = core.getInput('codebase');
     const customFields = [
         { $type: 'SingleEnumIssueCustomField', name: 'SubProject', value: { name: core.getInput('subproject') } },
         { $type: 'SingleEnumIssueCustomField', name: 'PR', value: { name: pr.html_url } },
         { $type: 'StateIssueCustomField', name: 'Stage', value: { name: core.getInput('stage') } },
         { $type: 'SingleEnumIssueCustomField', name: 'Type', value: { name: core.getInput('type') } },
         { $type: 'StateIssueCustomField', name: 'State', value: { name: core.getInput('state') } },
-        { $type: 'SingleUserIssueCustomField', name: 'Assignee', value: { login: core.getInput('assignee') } },
+        ...(assignee ? [{ $type: 'SingleUserIssueCustomField', name: 'Assignee', value: { login: assignee } }] : []),
         { $type: 'SingleEnumIssueCustomField', name: 'Priority', value: { name: core.getInput('priority') } },
-        { $type: 'SingleEnumIssueCustomField', name: 'CodeBase', value: { name: core.getInput('codebase') } },
+        ...(codebase ? [{ $type: 'SingleEnumIssueCustomField', name: 'CodeBase', value: { name: codebase } }] : []),
     ];
     const issue = await (0, youtrack_1.createIssue)(youtrackUrl, token, project, summary, customFields);
     core.info(`Created YouTrack issue ${issue.idReadable}: ${youtrackUrl}/issue/${issue.idReadable}`);
