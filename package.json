@@ -4,7 +4,7 @@
   "description": "GitHub Action: create a YouTrack issue for every Dependabot PR",
   "private": true,
   "scripts": {
-    "build": "ncc compile src/index.ts -o dist --license licenses.txt",
+    "build": "ncc build src/index.ts -o dist --license licenses.txt",
     "test": "jest"
   },
   "dependencies": {
