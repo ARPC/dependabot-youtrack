@@ -30022,6 +30022,14 @@ async function run() {
     }
     const youtrackUrl = core.getInput('youtrack-url');
     const token = core.getInput('youtrack-token');
+    if (!youtrackUrl) {
+        core.setFailed('Input "youtrack-url" is required but was not provided.');
+        return;
+    }
+    if (!token) {
+        core.setFailed('Input "youtrack-token" is required but was not provided.');
+        return;
+    }
     const project = core.getInput('project');
     const pr = github_1.context.payload.pull_request;
     const summary = `Dependabot: ${pr.title}`;
@@ -30054,19 +30062,26 @@ exports.createIssue = createIssue;
 async function createIssue(youtrackUrl, token, project, summary, customFields) {
     const baseUrl = youtrackUrl.replace(/\/$/, '');
     const url = `${baseUrl}/api/issues?fields=id,idReadable,summary`;
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-        },
-        body: JSON.stringify({
-            summary,
-            project: { name: project },
-            customFields,
-        }),
-    });
+    let response;
+    try {
+        response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                summary,
+                project: { id: project },
+                customFields,
+            }),
+        });
+    }
+    catch (err) {
+        const cause = err instanceof Error ? err.message : String(err);
+        throw new Error(`Network error reaching YouTrack at ${url}: ${cause}`);
+    }
     if (!response.ok) {
         const body = await response.text();
         throw new Error(`YouTrack API error ${response.status}: ${body}`);

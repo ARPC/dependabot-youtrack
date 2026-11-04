@@ -15,6 +15,15 @@ export async function run(): Promise<void> {
 
   const youtrackUrl = core.getInput('youtrack-url');
   const token = core.getInput('youtrack-token');
+
+  if (!youtrackUrl) {
+    core.setFailed('Input "youtrack-url" is required but was not provided.');
+    return;
+  }
+  if (!token) {
+    core.setFailed('Input "youtrack-token" is required but was not provided.');
+    return;
+  }
   const project = core.getInput('project');
   const pr = context.payload.pull_request as unknown as { title: string; html_url: string };
   const summary = `Dependabot: ${pr.title}`;
