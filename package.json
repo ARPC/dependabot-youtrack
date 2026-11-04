@@ -1,6 +1,6 @@
 {
   "name": "dependabot-youtrack",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "GitHub Action: create a YouTrack issue for every Dependabot PR",
   "private": true,
   "scripts": {
