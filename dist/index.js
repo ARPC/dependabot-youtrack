@@ -30059,8 +30059,35 @@ async function run() {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createIssue = createIssue;
+async function resolveProjectId(baseUrl, token, shortName) {
+    const url = `${baseUrl}/api/admin/projects?fields=id,shortName&query=${encodeURIComponent(shortName)}`;
+    let response;
+    try {
+        response = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+            },
+        });
+    }
+    catch (err) {
+        const cause = err instanceof Error ? err.message : String(err);
+        throw new Error(`Network error reaching YouTrack at ${url}: ${cause}`);
+    }
+    if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`YouTrack API error ${response.status}: ${body}`);
+    }
+    const projects = (await response.json());
+    const match = projects.find(p => p.shortName.toLowerCase() === shortName.toLowerCase());
+    if (!match) {
+        throw new Error(`YouTrack project with short name "${shortName}" not found`);
+    }
+    return match.id;
+}
 async function createIssue(youtrackUrl, token, project, summary, customFields) {
     const baseUrl = youtrackUrl.replace(/\/$/, '');
+    const projectId = await resolveProjectId(baseUrl, token, project);
     const url = `${baseUrl}/api/issues?fields=id,idReadable,summary`;
     let response;
     try {
@@ -30073,7 +30100,7 @@ async function createIssue(youtrackUrl, token, project, summary, customFields) {
             },
             body: JSON.stringify({
                 summary,
-                project: { shortName: project },
+                project: { id: projectId },
                 customFields,
             }),
         });
