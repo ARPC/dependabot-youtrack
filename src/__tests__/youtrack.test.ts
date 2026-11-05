@@ -2,11 +2,11 @@ import { createIssue, YouTrackCustomField } from '../youtrack';
 
 const URL = 'https://youtrack.example.com';
 const TOKEN = 'perm-token-abc';
-const PROJECT = 'TMT Development';
+const PROJECT_ID = '0-0';
 const SUMMARY = 'Dependabot: bump lodash from 4.17.20 to 4.17.21';
 const FIELDS: YouTrackCustomField[] = [
-  { $type: 'SingleEnumIssueCustomField', name: 'SubProject', value: { name: 'Licensing Manager' } },
-  { $type: 'StateIssueCustomField', name: 'State', value: { name: 'Active' } },
+  { $type: 'SingleEnumIssueCustomField', id: '92-1', value: { name: 'Licensing Manager' } },
+  { $type: 'StateIssueCustomField', id: '92-3', value: { name: 'Active' } },
 ];
 
 describe('createIssue', () => {
@@ -24,7 +24,7 @@ describe('createIssue', () => {
       json: async () => ({ id: '1-1', idReadable: 'TMT-1', summary: SUMMARY }),
     });
 
-    await createIssue(URL, TOKEN, PROJECT, SUMMARY, FIELDS);
+    await createIssue(URL, TOKEN, PROJECT_ID, SUMMARY, FIELDS);
 
     expect(global.fetch).toHaveBeenCalledWith(
       `${URL}/api/issues?fields=id,idReadable,summary`,
@@ -38,23 +38,23 @@ describe('createIssue', () => {
       json: async () => ({ id: '1-1', idReadable: 'TMT-1', summary: SUMMARY }),
     });
 
-    await createIssue(URL, TOKEN, PROJECT, SUMMARY, FIELDS);
+    await createIssue(URL, TOKEN, PROJECT_ID, SUMMARY, FIELDS);
 
     const [, init] = (global.fetch as jest.Mock).mock.calls[0];
     expect((init.headers as Record<string, string>)['Authorization']).toBe(`Bearer ${TOKEN}`);
   });
 
-  it('sends project as { name } object, not a plain string', async () => {
+  it('sends project as { id } object with the entity ID', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ id: '1-1', idReadable: 'TMT-1', summary: SUMMARY }),
     });
 
-    await createIssue(URL, TOKEN, PROJECT, SUMMARY, FIELDS);
+    await createIssue(URL, TOKEN, PROJECT_ID, SUMMARY, FIELDS);
 
     const [, init] = (global.fetch as jest.Mock).mock.calls[0];
     const body = JSON.parse(init.body as string);
-    expect(body.project).toEqual({ name: PROJECT });
+    expect(body.project).toEqual({ id: PROJECT_ID });
   });
 
   it('includes customFields in the request body', async () => {
@@ -63,7 +63,7 @@ describe('createIssue', () => {
       json: async () => ({ id: '1-1', idReadable: 'TMT-1', summary: SUMMARY }),
     });
 
-    await createIssue(URL, TOKEN, PROJECT, SUMMARY, FIELDS);
+    await createIssue(URL, TOKEN, PROJECT_ID, SUMMARY, FIELDS);
 
     const [, init] = (global.fetch as jest.Mock).mock.calls[0];
     const body = JSON.parse(init.body as string);
@@ -77,7 +77,7 @@ describe('createIssue', () => {
       json: async () => issue,
     });
 
-    const result = await createIssue(URL, TOKEN, PROJECT, SUMMARY, FIELDS);
+    const result = await createIssue(URL, TOKEN, PROJECT_ID, SUMMARY, FIELDS);
 
     expect(result).toEqual(issue);
   });
@@ -89,7 +89,7 @@ describe('createIssue', () => {
       text: async () => 'Forbidden: invalid token',
     });
 
-    await expect(createIssue(URL, TOKEN, PROJECT, SUMMARY, FIELDS)).rejects.toThrow(
+    await expect(createIssue(URL, TOKEN, PROJECT_ID, SUMMARY, FIELDS)).rejects.toThrow(
       'YouTrack API error 403: Forbidden: invalid token'
     );
   });
@@ -100,7 +100,7 @@ describe('createIssue', () => {
       json: async () => ({ id: '1-1', idReadable: 'TMT-1', summary: SUMMARY }),
     });
 
-    await createIssue(`${URL}/`, TOKEN, PROJECT, SUMMARY, FIELDS);
+    await createIssue(`${URL}/`, TOKEN, PROJECT_ID, SUMMARY, FIELDS);
 
     const [url] = (global.fetch as jest.Mock).mock.calls[0];
     expect(url).toBe(`${URL}/api/issues?fields=id,idReadable,summary`);
@@ -114,7 +114,7 @@ describe('createIssue', () => {
       text: async () => 'Internal Server Error',
     });
 
-    await expect(createIssue(URL, TOKEN, PROJECT, SUMMARY, FIELDS)).rejects.toThrow(
+    await expect(createIssue(URL, TOKEN, PROJECT_ID, SUMMARY, FIELDS)).rejects.toThrow(
       'YouTrack API error 500: Internal Server Error'
     );
   });

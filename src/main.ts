@@ -24,24 +24,25 @@ export async function run(): Promise<void> {
     core.setFailed('Input "youtrack-token" is required but was not provided.');
     return;
   }
-  const project = core.getInput('project');
+
+  const projectId = core.getInput('project-id');
   const pr = context.payload.pull_request as unknown as { title: string; html_url: string };
   const summary = `Dependabot: ${pr.title}`;
 
-  const assignee = core.getInput('assignee');
-  const codebase = core.getInput('codebase');
+  const assigneeId = core.getInput('assignee-id');
+  const codebaseId = core.getInput('codebase-id');
 
   const customFields: YouTrackCustomField[] = [
-    { $type: 'SingleEnumIssueCustomField', name: 'SubProject', value: { name: core.getInput('subproject') } },
-    { $type: 'SingleEnumIssueCustomField', name: 'PR',         value: { name: pr.html_url } },
-    { $type: 'StateIssueCustomField',      name: 'Stage',      value: { name: core.getInput('stage') } },
-    { $type: 'SingleEnumIssueCustomField', name: 'Type',       value: { name: core.getInput('type') } },
-    { $type: 'StateIssueCustomField',      name: 'State',      value: { name: core.getInput('state') } },
-    ...(assignee ? [{ $type: 'SingleUserIssueCustomField', name: 'Assignee', value: { login: assignee } } as YouTrackCustomField] : []),
-    { $type: 'SingleEnumIssueCustomField', name: 'Priority',   value: { name: core.getInput('priority') } },
-    ...(codebase ? [{ $type: 'SingleEnumIssueCustomField', name: 'CodeBase', value: { name: codebase } } as YouTrackCustomField] : []),
+    { $type: 'SingleEnumIssueCustomField', id: core.getInput('subproject-field-id'), value: { name: core.getInput('subproject') } },
+    { $type: 'SingleEnumIssueCustomField', id: core.getInput('pr-field-id'),         value: { name: pr.html_url } },
+    { $type: 'StateIssueCustomField',      id: core.getInput('stage-field-id'),       value: { name: core.getInput('stage') } },
+    { $type: 'SingleEnumIssueCustomField', id: core.getInput('type-field-id'),        value: { name: core.getInput('type') } },
+    { $type: 'StateIssueCustomField',      id: core.getInput('state-field-id'),       value: { name: core.getInput('state') } },
+    { $type: 'SingleEnumIssueCustomField', id: core.getInput('priority-field-id'),    value: { name: core.getInput('priority') } },
+    ...(assigneeId ? [{ $type: 'SingleUserIssueCustomField', id: core.getInput('assignee-field-id'), value: { login: assigneeId } } as YouTrackCustomField] : []),
+    ...(codebaseId ? [{ $type: 'SingleEnumIssueCustomField', id: core.getInput('codebase-field-id'), value: { name: codebaseId } } as YouTrackCustomField] : []),
   ];
 
-  const issue = await createIssue(youtrackUrl, token, project, summary, customFields);
+  const issue = await createIssue(youtrackUrl, token, projectId, summary, customFields);
   core.info(`Created YouTrack issue ${issue.idReadable}: ${youtrackUrl}/issue/${issue.idReadable}`);
 }

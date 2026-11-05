@@ -30030,22 +30030,22 @@ async function run() {
         core.setFailed('Input "youtrack-token" is required but was not provided.');
         return;
     }
-    const project = core.getInput('project');
+    const projectId = core.getInput('project-id');
     const pr = github_1.context.payload.pull_request;
     const summary = `Dependabot: ${pr.title}`;
-    const assignee = core.getInput('assignee');
-    const codebase = core.getInput('codebase');
+    const assigneeId = core.getInput('assignee-id');
+    const codebaseId = core.getInput('codebase-id');
     const customFields = [
-        { $type: 'SingleEnumIssueCustomField', name: 'SubProject', value: { name: core.getInput('subproject') } },
-        { $type: 'SingleEnumIssueCustomField', name: 'PR', value: { name: pr.html_url } },
-        { $type: 'StateIssueCustomField', name: 'Stage', value: { name: core.getInput('stage') } },
-        { $type: 'SingleEnumIssueCustomField', name: 'Type', value: { name: core.getInput('type') } },
-        { $type: 'StateIssueCustomField', name: 'State', value: { name: core.getInput('state') } },
-        ...(assignee ? [{ $type: 'SingleUserIssueCustomField', name: 'Assignee', value: { login: assignee } }] : []),
-        { $type: 'SingleEnumIssueCustomField', name: 'Priority', value: { name: core.getInput('priority') } },
-        ...(codebase ? [{ $type: 'SingleEnumIssueCustomField', name: 'CodeBase', value: { name: codebase } }] : []),
+        { $type: 'SingleEnumIssueCustomField', id: core.getInput('subproject-field-id'), value: { name: core.getInput('subproject') } },
+        { $type: 'SingleEnumIssueCustomField', id: core.getInput('pr-field-id'), value: { name: pr.html_url } },
+        { $type: 'StateIssueCustomField', id: core.getInput('stage-field-id'), value: { name: core.getInput('stage') } },
+        { $type: 'SingleEnumIssueCustomField', id: core.getInput('type-field-id'), value: { name: core.getInput('type') } },
+        { $type: 'StateIssueCustomField', id: core.getInput('state-field-id'), value: { name: core.getInput('state') } },
+        { $type: 'SingleEnumIssueCustomField', id: core.getInput('priority-field-id'), value: { name: core.getInput('priority') } },
+        ...(assigneeId ? [{ $type: 'SingleUserIssueCustomField', id: core.getInput('assignee-field-id'), value: { login: assigneeId } }] : []),
+        ...(codebaseId ? [{ $type: 'SingleEnumIssueCustomField', id: core.getInput('codebase-field-id'), value: { name: codebaseId } }] : []),
     ];
-    const issue = await (0, youtrack_1.createIssue)(youtrackUrl, token, project, summary, customFields);
+    const issue = await (0, youtrack_1.createIssue)(youtrackUrl, token, projectId, summary, customFields);
     core.info(`Created YouTrack issue ${issue.idReadable}: ${youtrackUrl}/issue/${issue.idReadable}`);
 }
 
@@ -30059,35 +30059,8 @@ async function run() {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createIssue = createIssue;
-async function resolveProjectId(baseUrl, token, shortName) {
-    const url = `${baseUrl}/api/admin/projects?fields=id,shortName&query=${encodeURIComponent(shortName)}`;
-    let response;
-    try {
-        response = await fetch(url, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Accept: 'application/json',
-            },
-        });
-    }
-    catch (err) {
-        const cause = err instanceof Error ? err.message : String(err);
-        throw new Error(`Network error reaching YouTrack at ${url}: ${cause}`);
-    }
-    if (!response.ok) {
-        const body = await response.text();
-        throw new Error(`YouTrack API error ${response.status}: ${body}`);
-    }
-    const projects = (await response.json());
-    const match = projects.find(p => p.shortName.toLowerCase() === shortName.toLowerCase());
-    if (!match) {
-        throw new Error(`YouTrack project with short name "${shortName}" not found`);
-    }
-    return match.id;
-}
-async function createIssue(youtrackUrl, token, project, summary, customFields) {
+async function createIssue(youtrackUrl, token, projectId, summary, customFields) {
     const baseUrl = youtrackUrl.replace(/\/$/, '');
-    const projectId = await resolveProjectId(baseUrl, token, project);
     const url = `${baseUrl}/api/issues?fields=id,idReadable,summary`;
     let response;
     try {

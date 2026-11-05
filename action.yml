@@ -9,29 +9,63 @@ inputs:
   youtrack-token:
     description: 'Permanent token for YouTrack API auth'
     required: true
-  project:
-    description: 'YouTrack project name or short name'
+  project-id:
+    description: 'YouTrack project entity ID (e.g. 0-0). GET /api/admin/projects?fields=id,name,shortName'
+    required: true
+
+  subproject-field-id:
+    description: 'Entity ID of the SubProject custom field'
     required: true
   subproject:
     description: 'Value for the SubProject custom field'
     required: true
+
+  pr-field-id:
+    description: 'Entity ID of the PR custom field'
+    required: true
+
+  stage-field-id:
+    description: 'Entity ID of the Stage custom field'
+    required: true
   stage:
     description: 'Value for the Stage custom field'
+    required: true
+
+  type-field-id:
+    description: 'Entity ID of the Type custom field'
     required: true
   type:
     description: 'Value for the Type custom field'
     required: true
+
+  state-field-id:
+    description: 'Entity ID of the State custom field'
+    required: true
   state:
     description: 'Value for the State custom field'
     required: true
-  assignee:
-    description: 'YouTrack login for the Assignee field'
-    required: false
-    default: ''
+
+  priority-field-id:
+    description: 'Entity ID of the Priority custom field'
+    required: true
   priority:
     description: 'Value for the Priority custom field'
     required: true
-  codebase:
+
+  assignee-field-id:
+    description: 'Entity ID of the Assignee custom field'
+    required: false
+    default: ''
+  assignee-id:
+    description: 'YouTrack login for the Assignee field'
+    required: false
+    default: ''
+
+  codebase-field-id:
+    description: 'Entity ID of the CodeBase custom field'
+    required: false
+    default: ''
+  codebase-id:
     description: 'Value for the CodeBase custom field'
     required: false
     default: ''

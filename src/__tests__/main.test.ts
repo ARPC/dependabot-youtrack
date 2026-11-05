@@ -27,14 +27,22 @@ const YOUTRACK_URL = 'https://youtrack.example.com';
 const DEFAULT_INPUTS: Record<string, string> = {
   'youtrack-url': YOUTRACK_URL,
   'youtrack-token': 'perm-token-123',
-  project: 'TMT Development',
-  subproject: 'Licensing Manager',
-  stage: 'In Progress',
-  type: 'Bug',
-  state: 'Active',
-  assignee: 'jimmy.bosse',
-  priority: 'Normal',
-  codebase: 'No code base',
+  'project-id': '0-0',
+  'subproject-field-id': '92-1',
+  'subproject': 'Licensing Manager',
+  'pr-field-id': '92-2',
+  'stage-field-id': '92-3',
+  'stage': 'In Progress',
+  'type-field-id': '92-4',
+  'type': 'Bug',
+  'state-field-id': '92-5',
+  'state': 'Active',
+  'priority-field-id': '92-6',
+  'priority': 'Normal',
+  'assignee-field-id': '94-0',
+  'assignee-id': 'jimmy.bosse',
+  'codebase-field-id': '92-7',
+  'codebase-id': 'No code base',
 };
 
 function githubContext() {
@@ -80,7 +88,7 @@ describe('run()', () => {
   it('uses html_url (not api url) as the PR custom field value', async () => {
     await run();
     const customFields = mockCreateIssue.mock.calls[0][4];
-    const prField = customFields.find(f => f.name === 'PR');
+    const prField = customFields.find(f => f.id === DEFAULT_INPUTS['pr-field-id']);
     expect(prField?.value).toEqual({ name: PR_HTML_URL });
   });
 
@@ -107,12 +115,12 @@ describe('run()', () => {
 
   it('omits Assignee and CodeBase from customFields when inputs are empty', async () => {
     mockCore.getInput.mockImplementation((name: string) =>
-      ({ ...DEFAULT_INPUTS, assignee: '', codebase: '' } as Record<string, string>)[name] ?? ''
+      ({ ...DEFAULT_INPUTS, 'assignee-id': '', 'codebase-id': '' } as Record<string, string>)[name] ?? ''
     );
     await run();
     const customFields = mockCreateIssue.mock.calls[0][4];
-    expect(customFields.find(f => f.name === 'Assignee')).toBeUndefined();
-    expect(customFields.find(f => f.name === 'CodeBase')).toBeUndefined();
+    expect(customFields.find(f => f.id === DEFAULT_INPUTS['assignee-field-id'])).toBeUndefined();
+    expect(customFields.find(f => f.id === DEFAULT_INPUTS['codebase-field-id'])).toBeUndefined();
   });
 
   it('throws on YouTrack API error so the entry point can call setFailed', async () => {
