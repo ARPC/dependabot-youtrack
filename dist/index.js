@@ -30073,7 +30073,7 @@ async function createIssue(youtrackUrl, token, project, summary, customFields) {
             },
             body: JSON.stringify({
                 summary,
-                project: { id: project },
+                project: { shortName: project },
                 customFields,
             }),
         });

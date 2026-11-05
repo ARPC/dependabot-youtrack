@@ -31,7 +31,7 @@ export async function createIssue(
       },
       body: JSON.stringify({
         summary,
-        project: { id: project },
+        project: { shortName: project },
         customFields,
       }),
     });
