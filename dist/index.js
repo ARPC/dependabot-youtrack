@@ -30037,7 +30037,7 @@ async function run() {
     const codebaseId = core.getInput('codebase-id');
     const customFields = [
         { $type: 'SingleEnumIssueCustomField', id: core.getInput('subproject-field-id'), value: { name: core.getInput('subproject') } },
-        { $type: 'SingleEnumIssueCustomField', id: core.getInput('pr-field-id'), value: { name: pr.html_url } },
+        { $type: 'SimpleIssueCustomField', id: core.getInput('pr-field-id'), value: pr.html_url },
         { $type: 'StateIssueCustomField', id: core.getInput('stage-field-id'), value: { name: core.getInput('stage') } },
         { $type: 'SingleEnumIssueCustomField', id: core.getInput('type-field-id'), value: { name: core.getInput('type') } },
         { $type: 'StateIssueCustomField', id: core.getInput('state-field-id'), value: { name: core.getInput('state') } },

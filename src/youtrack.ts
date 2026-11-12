@@ -1,7 +1,7 @@
 export interface YouTrackCustomField {
   $type: string;
   id: string;
-  value: Record<string, string> | Record<string, string>[];
+  value: string | Record<string, string> | Record<string, string>[];
 }
 
 export interface YouTrackIssue {

@@ -89,7 +89,8 @@ describe('run()', () => {
     await run();
     const customFields = mockCreateIssue.mock.calls[0][4];
     const prField = customFields.find(f => f.id === DEFAULT_INPUTS['pr-field-id']);
-    expect(prField?.value).toEqual({ name: PR_HTML_URL });
+    expect(prField?.$type).toBe('SimpleIssueCustomField');
+    expect(prField?.value).toBe(PR_HTML_URL);
   });
 
   it('passes youtrack-url and youtrack-token as first two args to createIssue', async () => {
